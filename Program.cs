@@ -6,9 +6,9 @@ using var db = new BloggingContext();
 Console.WriteLine($"Database path: {db.DbPath}.");
 
 // Create
-// Console.WriteLine("Inserting a new blog");
-// db.Add(new Blog { Url = "UtcNow", Created = DateTimeOffset.UtcNow });
-// db.SaveChanges();
+Console.WriteLine("Inserting a new blog");
+db.Add(new Blog { Url = "UtcNow", Created = DateTimeOffset.UtcNow });
+db.SaveChanges();
 
 // Read
 // Console.WriteLine("Querying for a blog");
@@ -22,6 +22,7 @@ Console.WriteLine($"Database path: {db.DbPath}.");
 
 var blog = db.Blogs.ToList().First();
 Console.WriteLine(blog.BlogId);
+Console.WriteLine(blog.Created!.Value.ToLocalTime());
 
 // var result = db.Blogs.Single(b => b.BlogId == blog.BlogId);
 

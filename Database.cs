@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 public class BloggingContext  : DbContext
 {
@@ -27,30 +28,29 @@ public class BloggingContext  : DbContext
     // special "local" folder for your platform.
     protected override void OnConfiguring(DbContextOptionsBuilder options)
         => options.UseSqlite($"Data Source={DbPath};foreign keys=true")
-            .AddInterceptors(new SqliteDatatypesCommandInterceptor(), new SqliteDatatypesReadInterceptor());
+            .AddInterceptors(new SqliteDatatypesCommandInterceptor());
 
     // TODO how do I prepend each (each connection) with PRAGMA foreign_keys = ON;
     // https://stackoverflow.com/a/6419268/435368
-}
 
-public class SqliteDatatypesReadInterceptor : IMaterializationInterceptor
-{
-    public SqliteDatatypesReadInterceptor()
-    {}
-    
-    public InterceptionResult<object> CreatingInstance(MaterializationInterceptionData data, InterceptionResult<Object> results)
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
-        foreach(var property in data.EntityType.GetDeclaredProperties())
-        {
-            if(property.GetTypeMapping().ClrType == typeof(DateTimeOffset))
-            {
-                
-            }
-        }
-        return results;
+        configurationBuilder
+            .Properties<DateTimeOffset>()
+            .HaveConversion<DateTimeOffsetEpochConverter>();
     }
 }
 
+
+public class DateTimeOffsetEpochConverter : ValueConverter<DateTimeOffset, long>
+{
+    public DateTimeOffsetEpochConverter()
+        : base(
+            v => v.ToUnixTimeMilliseconds(),
+            v => DateTimeOffset.FromUnixTimeMilliseconds(v))
+    {
+    }
+}
 
 // https://github.com/dotnet/EntityFramework.Docs/blob/main/samples/core/Miscellaneous/CommandInterception/TaggedQueryCommandInterceptor.cs
 public class SqliteDatatypesCommandInterceptor : DbCommandInterceptor
@@ -80,7 +80,6 @@ public class SqliteDatatypesCommandInterceptor : DbCommandInterceptor
     {
         var dbparams = command.Parameters as SqliteParameterCollection;
         if (dbparams == null) throw new Exception("Expected Sqlite database");
-        // dbparams.FormatParameters()
         foreach(var param in dbparams)
         {
             var sqliteParam = (Microsoft.Data.Sqlite.SqliteParameter)param;
@@ -88,11 +87,6 @@ public class SqliteDatatypesCommandInterceptor : DbCommandInterceptor
             {
                 sqliteParam.SqliteType = SqliteType.Blob;
                 //dbparams[dbparams.IndexOf(param)].SqliteType = SqliteType.Blob;
-            }
-            else if(sqliteParam.Value is DateTimeOffset)
-            {
-                sqliteParam.Value = ((DateTimeOffset)sqliteParam.Value).ToUnixTimeMilliseconds();
-                sqliteParam.SqliteType = SqliteType.Integer;
             }
         }
     }
