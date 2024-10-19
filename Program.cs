@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 using var db = new BloggingContext();
 
@@ -24,6 +25,22 @@ var blog = db.Blogs.ToList().First();
 Console.WriteLine(blog.BlogId);
 Console.WriteLine(blog.Created!.Value.ToLocalTime());
 
+try
+{
+    // Try to insert a Post that violates FK constraint
+    var bytes = Guid.NewGuid().ToByteArray();
+    var blogs = db.Blogs
+        .FromSqlInterpolated($@"INSERT INTO POSTS (PostId, Title, Content, BlogId)
+    VALUES ({bytes}, 'foo', 'bar', {bytes})")
+        .ToList();
+}
+catch (Microsoft.Data.Sqlite.SqliteException ex)
+{
+    if (ex.Message.Contains("FOREIGN KEY"))
+        Console.WriteLine("FK Constraint successful");
+    else
+        throw;
+}
 // var result = db.Blogs.Single(b => b.BlogId == blog.BlogId);
 
 // Console.WriteLine(new Guid(Convert.FromHexString("A79EC554E5AEE04F938026D20F54A316")));

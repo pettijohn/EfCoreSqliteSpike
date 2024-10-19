@@ -17,7 +17,7 @@ CREATE TABLE "Posts" (
     "PostId" BLOB NOT NULL CONSTRAINT "PK_Posts" PRIMARY KEY,
     "Title" TEXT NOT NULL,
     "Content" TEXT NOT NULL,
-    "BlogId" TEXT NOT NULL,
+    "BlogId" BLOB NOT NULL,
     CONSTRAINT "FK_Posts_Blogs_BlogId" FOREIGN KEY ("BlogId") REFERENCES "Blogs" ("BlogId") ON DELETE CASCADE
 ) WITHOUT ROWID, STRICT;
 
