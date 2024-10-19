@@ -6,7 +6,7 @@ https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/types
 
 See `SqliteDatatypesCommandInterceptor.ManipulateCommand`; it modifies `SqliteParameter.SqliteType = SqliteType.Blob;`. This is a supported datatype for `Microsoft.Data.Sqlite` so everything else magically works. 
 
-Note there is questionable value in doing this. Compared to storing Guid as a String, insert and select performance are effectively identical, while size on disk is double for Strings. The biggest downside to storing as blob is that it is difficult to get human-readable Guids back out of the database, especially on the command line `sqlite3` and other tools. `SELECT quote(guidAsBlob)` returns a hex string of the byte array, but the sequence of bytes is incorrect (different endianness). 
+Note there is questionable value in doing this. Compared to storing Guid as a String, insert and select performance are effectively identical, while size on disk is double for Strings. The biggest downside to storing as blob is that it is difficult to get human-readable Guids back out of the database, especially on the command line `sqlite3` and other tools. `SELECT quote(guidAsBlob)` returns a hex string of the byte array, but the sequence of bytes is incorrect (different endianness). See details about pros and cons here: https://github.com/pettijohn/SqliteGuidSpike
 
 ```
 substr(hex(blogid), 7, 2) || substr(hex(blogid), 5, 2) || substr(hex(blogid), 3, 2) || substr(hex(blogid), 1, 2) || '-' || substr(hex(blogid), 11, 2) || substr(hex(blogid), 9, 2) || '-' || substr(hex(blogid), 15, 2) || substr(hex(blogid), 13, 2) || '-' || substr(hex(blogid), 17, 4) || '-' || substr(hex(blogid), 21, 12)
