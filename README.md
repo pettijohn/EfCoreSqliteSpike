@@ -1,0 +1,1 @@
+substr(hex(blogid), 7, 2) || substr(hex(blogid), 5, 2) || substr(hex(blogid), 3, 2) || substr(hex(blogid), 1, 2) || '-' || substr(hex(blogid), 11, 2) || substr(hex(blogid), 9, 2) || '-' || substr(hex(blogid), 15, 2) || substr(hex(blogid), 13, 2) || '-' || substr(hex(blogid), 17, 4) || '-' || substr(hex(blogid), 21, 12)
