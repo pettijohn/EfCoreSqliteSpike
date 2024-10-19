@@ -42,6 +42,7 @@ public class BloggingContext  : DbContext
 }
 
 
+// https://learn.microsoft.com/en-us/ef/core/modeling/value-conversions
 public class DateTimeOffsetEpochConverter : ValueConverter<DateTimeOffset, long>
 {
     public DateTimeOffsetEpochConverter()
